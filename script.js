@@ -36,8 +36,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   function searchKeywords(input, data) {
     let results = [];
+    console.log(input.substring(0, input.length-1))
     for (let item in data) {
-        if(item.includes(input)) {
+        if(item.includes(input.substring(0, input.length-1))) {
             data[item].forEach(element => {
                 results.push(element)
             });
@@ -57,11 +58,23 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.log(result)
         const resultElement = document.createElement("div");
         resultElement.className = "result";
-        resultElement.innerHTML = `
-                    <h3>${result.name}</h3>
+        resultElement.innerHTML = `<h3>${result.name}</h3>`;
+
+        if(!result.description) {
+            result.cities.forEach(element => {
+                resultElement.innerHTML += `
+                        <h5>${element.name}</h5>
+                        <p>${element.description}</p>
+                        <img src="${element.imageUrl}" alt="${element.name} image">
+                    `;
+            });
+        } else {
+            resultElement.innerHTML += `
                     <p>${result.description}</p>
                     <img src="${result.imageUrl}" alt="${result.name} image">
                 `;
+        }
+        
         resultsContainer.appendChild(resultElement);
       });
     }
