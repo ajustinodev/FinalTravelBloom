@@ -62,16 +62,18 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if(!result.description) {
             result.cities.forEach(element => {
+                showCurrentTime(element.name.split(" ")[0].split(",")[0]);
                 resultElement.innerHTML += `
                         <h5>${element.name}</h5>
                         <p>${element.description}</p>
-                        <img src="${element.imageUrl}" alt="${element.name} image">
+                        <img src="./images/${element.imageUrl}" alt="${element.name} image" id="imgPlace">
                     `;
             });
         } else {
+            showCurrentTime(result.name.split(" ")[0].split(",")[0]);
             resultElement.innerHTML += `
                     <p>${result.description}</p>
-                    <img src="${result.imageUrl}" alt="${result.name} image">
+                    <img src="./images/${result.imageUrl}" alt="${result.name} image" id="imgPlace">
                 `;
         }
         
@@ -85,3 +87,51 @@ document.addEventListener("DOMContentLoaded", async function () {
     resultsContainer.innerHTML = "";
   }
 });
+
+
+async function getTime(placeName) {
+    const timeZones = {
+        "Sydney": "Australia/Sydney",
+        "Melbourne": "Australia/Melbourne",
+        "Tokyo": "Asia/Tokyo",
+        "Kyoto": "Asia/Tokyo",
+        "São Paulo": "America/Sao_Paulo",
+        "Angkor Wat": "Asia/Phnom_Penh",
+        "Taj Mahal": "Asia/Kolkata",
+        "Bora Bora": "Pacific/Tahiti",
+        "Copacabana": "America/Sao_Paulo"
+    };
+
+    for (let place in timeZones) {
+        console.log("Lugar -> " + place + " incluye -> " + placeName + "???")
+        if (place.toLowerCase().includes(placeName.toLowerCase())) {
+            const timeZone = timeZones[place];
+            try {
+                const targetUrl = `https://timeapi.io/api/Time/current/zone?timeZone=${timeZone}`;
+                const response = await fetch(targetUrl);
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error("Error fetching time data:", error);
+                return "Error fetching time data";
+            }
+        }
+    }
+    return "Time zone not found";
+}
+
+function showCurrentTime(placeName) {
+    const timeDisplay = document.createElement("h6");
+    timeDisplay.className = "time-display"
+
+    async function updateTime() {
+        const currentTime = await getTime(placeName);
+        timeDisplay.textContent = currentTime;
+        console.log(currentTime)
+    }
+
+    updateTime();
+    // setInterval(updateTime, 1000);
+}
+
+
